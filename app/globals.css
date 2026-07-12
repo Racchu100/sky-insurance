@@ -507,7 +507,7 @@
 
   .content-area {
     padding: 28px 32px;
-    max-width: 1400px;
+    width: 100%;
   }
 
   /* Mobile responsive */
