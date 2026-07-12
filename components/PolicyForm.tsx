@@ -74,6 +74,7 @@ export default function PolicyForm({
     defaultValues: {
       date: toInputDate(defaultValues?.date) || toInputDate(new Date()),
       customerName: defaultValues?.customerName || "",
+      customerNo: defaultValues?.customerNo || "",
       mobileNo: defaultValues?.mobileNo || "",
       refAgent: defaultValues?.refAgent || "",
       vehicleNo: defaultValues?.vehicleNo || "",
@@ -164,6 +165,9 @@ export default function PolicyForm({
           </FormField>
           <FormField label="Customer Name" required error={errors.customerName?.message}>
             <input type="text" placeholder="e.g. Rajesh Kumar" className={`form-input ${errors.customerName ? "error" : ""}`} id="field-customerName" {...register("customerName")} />
+          </FormField>
+          <FormField label="Customer No" error={errors.customerNo?.message}>
+            <input type="text" placeholder="e.g. CUST-1001" className={`form-input ${errors.customerNo ? "error" : ""}`} id="field-customerNo" {...register("customerNo")} />
           </FormField>
           <FormField label="Mobile No" required error={errors.mobileNo?.message}>
             <input

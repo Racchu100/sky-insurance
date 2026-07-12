@@ -3,6 +3,7 @@ import { z } from "zod";
 export const policySchema = z.object({
   date: z.string().min(1, "Date is required"),
   customerName: z.string().min(1, "Customer name is required").max(100),
+  customerNo: z.string().max(50).optional().default(""),
   mobileNo: z
     .string()
     .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),

@@ -24,6 +24,7 @@ interface Policy {
   id: string;
   date: string;
   customerName: string;
+  customerNo?: string;
   mobileNo: string;
   refAgent: string;
   vehicleNo: string;
@@ -410,7 +411,14 @@ export default function PoliciesPage() {
                     onClick={() => router.push(`/policies/${policy.id}`)}
                   >
                     <td>
-                      <div style={{ fontWeight: 600, fontSize: 14 }}>{policy.customerName}</div>
+                      <div style={{ fontWeight: 600, fontSize: 14 }}>
+                        {policy.customerName}
+                        {policy.customerNo && (
+                          <span style={{ fontSize: 11, fontWeight: 500, color: "#64748b", marginLeft: 6 }}>
+                            ({policy.customerNo})
+                          </span>
+                        )}
+                      </div>
                       <div style={{ fontSize: 12, color: "#94a3b8" }}>{policy.mobileNo}</div>
                     </td>
                     <td>

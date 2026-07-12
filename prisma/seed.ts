@@ -68,6 +68,7 @@ async function main() {
     {
       date: new Date(today.getFullYear(), today.getMonth(), 1),
       customerName: "Rajesh Kumar",
+      customerNo: "CUST-1001",
       mobileNo: "9876543210",
       refAgent: "Suresh",
       vehicleNo: "KA19AB1234",
@@ -86,6 +87,7 @@ async function main() {
     {
       date: new Date(today.getFullYear(), today.getMonth(), 5),
       customerName: "Priya Sharma",
+      customerNo: "CUST-1002",
       mobileNo: "9845123456",
       refAgent: "Ramesh",
       vehicleNo: "KA01CD5678",
@@ -104,6 +106,7 @@ async function main() {
     {
       date: new Date(today.getFullYear(), today.getMonth() - 1, 15),
       customerName: "Mohan Das",
+      customerNo: "CUST-1003",
       mobileNo: "9900112233",
       refAgent: "Suresh",
       vehicleNo: "KA05EF9012",
@@ -122,6 +125,7 @@ async function main() {
     {
       date: new Date(today.getFullYear(), today.getMonth(), 8),
       customerName: "Anitha Reddy",
+      customerNo: "CUST-1004",
       mobileNo: "9741234567",
       vehicleNo: "KA03GH3456",
       insuranceComp: "New India Assurance",
@@ -139,6 +143,7 @@ async function main() {
     {
       date: new Date(today.getFullYear(), today.getMonth(), 10),
       customerName: "Vijay Nair",
+      customerNo: "CUST-1005",
       mobileNo: "9632587410",
       refAgent: "Ramesh",
       vehicleNo: "KA09IJ7890",

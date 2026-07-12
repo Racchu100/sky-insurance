@@ -26,15 +26,16 @@ export async function GET(request: NextRequest) {
     isDeleted: false,
     ...(search && {
       OR: [
-        { customerName: { contains: search } },
-        { vehicleNo: { contains: search } },
-        { mobileNo: { contains: search } },
-        { policyNo: { contains: search } },
+        { customerName: { contains: search, mode: "insensitive" } },
+        { customerNo: { contains: search, mode: "insensitive" } },
+        { vehicleNo: { contains: search, mode: "insensitive" } },
+        { mobileNo: { contains: search, mode: "insensitive" } },
+        { policyNo: { contains: search, mode: "insensitive" } },
       ],
     }),
     ...(insuranceComp && { insuranceComp }),
     ...(vehicleType && { vehicleType }),
-    ...(refAgent && { refAgent: { contains: refAgent } }),
+    ...(refAgent && { refAgent: { contains: refAgent, mode: "insensitive" } }),
   };
 
   // Policy Date filter range
@@ -87,6 +88,7 @@ export async function GET(request: NextRequest) {
     "Policy No": p.policyNo,
     Date: new Date(p.date).toLocaleDateString("en-IN"),
     "Customer Name": p.customerName,
+    "Customer Number": p.customerNo || "",
     "Mobile No": p.mobileNo,
     "Ref Agent": p.refAgent || "",
     "Vehicle No": p.vehicleNo,

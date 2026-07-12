@@ -26,6 +26,7 @@ interface Policy {
   id: string;
   date: string;
   customerName: string;
+  customerNo?: string;
   mobileNo: string;
   refAgent: string;
   vehicleNo: string;
@@ -135,6 +136,7 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
 
   const infoRows = [
     { icon: <User size={15} color="#0284c7" />, label: "Customer", value: policy.customerName },
+    { icon: <User size={15} color="#0284c7" />, label: "Customer No", value: policy.customerNo || "—" },
     { icon: <Phone size={15} color="#0284c7" />, label: "Mobile", value: <a href={`tel:${policy.mobileNo}`} style={{ color: "#0284c7", textDecoration: "none" }}>{policy.mobileNo}</a> },
     { icon: <User size={15} color="#7c3aed" />, label: "Ref Agent", value: policy.refAgent || "—" },
     { icon: <Car size={15} color="#7c3aed" />, label: "Vehicle No", value: <span style={{ fontFamily: "monospace", fontWeight: 700 }}>{policy.vehicleNo}</span> },

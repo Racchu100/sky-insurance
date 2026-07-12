@@ -44,6 +44,7 @@ model Policy {
   riskStartDate DateTime
   riskEndDate   DateTime
   policyNo      String      @unique
+  customerNo    String?
   vehicleModel  String
   od            Float       @default(0)
   netPremium    Float       @default(0)
