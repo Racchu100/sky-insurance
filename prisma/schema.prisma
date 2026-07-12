@@ -1,0 +1,71 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(AGENT)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdPolicies Policy[] @relation("CreatedBy")
+  updatedPolicies Policy[] @relation("UpdatedBy")
+}
+
+model InsuranceCompany {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Policy {
+  id            String      @id @default(cuid())
+  date          DateTime
+  customerName  String
+  mobileNo      String
+  refAgent      String?
+  vehicleNo     String
+  insuranceComp String
+  vehicleType   VehicleType
+  riskStartDate DateTime
+  riskEndDate   DateTime
+  policyNo      String      @unique
+  vehicleModel  String
+  od            Float       @default(0)
+  netPremium    Float       @default(0)
+  gst           Float       @default(0)
+  premium       Float       @default(0)
+  investment    Float       @default(0)
+  isDeleted     Boolean     @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  createdById String?
+  updatedById String?
+  createdBy   User?   @relation("CreatedBy", fields: [createdById], references: [id])
+  updatedBy   User?   @relation("UpdatedBy", fields: [updatedById], references: [id])
+}
+
+enum VehicleType {
+  PVT
+  COM
+}
+
+enum Role {
+  ADMIN
+  AGENT
+}
