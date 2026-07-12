@@ -59,19 +59,24 @@ export async function GET(request: NextRequest) {
     };
   }
 
+  const setting = await prisma.systemSetting.findUnique({
+    where: { key: "expiringSoonDays" },
+  });
+  const expiringSoonDays = setting ? parseInt(setting.value, 10) : 30;
+
   // Combine status and custom range for riskEndDate
   const today = new Date();
-  const thirtyDaysFromNow = new Date();
-  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+  const thresholdDate = new Date();
+  thresholdDate.setDate(today.getDate() + expiringSoonDays);
   today.setHours(0, 0, 0, 0);
 
   let statusFilter: Record<string, Date> = {};
   if (status === "EXPIRED") {
     statusFilter = { lt: today };
   } else if (status === "EXPIRING_SOON") {
-    statusFilter = { gte: today, lte: thirtyDaysFromNow };
+    statusFilter = { gte: today, lte: thresholdDate };
   } else if (status === "ACTIVE") {
-    statusFilter = { gt: thirtyDaysFromNow };
+    statusFilter = { gt: thresholdDate };
   }
 
   if (status || riskEndFrom || riskEndTo) {
@@ -96,7 +101,7 @@ export async function GET(request: NextRequest) {
     prisma.policy.count({ where }),
   ]);
 
-  return NextResponse.json({ policies, total, page, limit });
+  return NextResponse.json({ policies, total, page, limit, expiringSoonDays });
 }
 
 export async function POST(request: NextRequest) {

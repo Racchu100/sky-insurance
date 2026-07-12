@@ -5,6 +5,7 @@ import { getPolicyStatus, type PolicyStatus } from "@/lib/utils";
 interface StatusBadgeProps {
   riskEndDate: Date | string;
   showDays?: boolean;
+  threshold?: number;
 }
 
 const statusConfig: Record<PolicyStatus, { label: string; className: string; dot: string }> = {
@@ -25,8 +26,8 @@ const statusConfig: Record<PolicyStatus, { label: string; className: string; dot
   },
 };
 
-export default function StatusBadge({ riskEndDate, showDays = false }: StatusBadgeProps) {
-  const status = getPolicyStatus(riskEndDate);
+export default function StatusBadge({ riskEndDate, showDays = false, threshold = 30 }: StatusBadgeProps) {
+  const status = getPolicyStatus(riskEndDate, threshold);
   const config = statusConfig[status];
   const today = new Date();
   today.setHours(0, 0, 0, 0);

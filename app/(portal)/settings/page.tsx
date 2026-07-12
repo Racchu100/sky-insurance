@@ -54,7 +54,9 @@ export default function SettingsPage() {
   const [addingCompany, setAddingCompany] = useState(false);
   const [addingUser, setAddingUser] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const [activeTab, setActiveTab] = useState<"companies" | "users">("companies");
+  const [activeTab, setActiveTab] = useState<"companies" | "users" | "system">("companies");
+  const [expiringSoonDays, setExpiringSoonDays] = useState<number>(30);
+  const [settingsSaving, setSettingsSaving] = useState(false);
 
   const showToast = (message: string, type: "success" | "error") => {
     setToast({ message, type });
@@ -75,8 +77,35 @@ export default function SettingsPage() {
     fetch("/api/insurance-companies").then((r) => r.json()).then(setCompanies);
     if (isAdmin) {
       fetch("/api/users").then((r) => r.json()).then(setUsers);
+      fetch("/api/settings")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.expiringSoonDays) setExpiringSoonDays(data.expiringSoonDays);
+        })
+        .catch(() => {});
     }
   }, [isAdmin]);
+
+  const handleSaveSettings = async () => {
+    setSettingsSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expiringSoonDays }),
+      });
+      if (res.ok) {
+        showToast("System settings updated successfully!", "success");
+      } else {
+        const err = await res.json();
+        showToast(err.error || "Failed to update settings", "error");
+      }
+    } catch {
+      showToast("Network error saving settings", "error");
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
 
   const handleAddCompany = async () => {
     if (!newCompany.trim()) return;
@@ -159,11 +188,11 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div style={{ display: "flex", gap: 4, marginBottom: 24, background: "white", padding: 4, borderRadius: 10, border: "1px solid #e2e8f0", width: "fit-content" }}>
         {([
           { key: "companies", label: "Insurance Companies", icon: Building2 },
           { key: "users", label: "User Management", icon: Users },
+          { key: "system", label: "System Settings", icon: Shield },
         ] as const).map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -375,6 +404,44 @@ export default function SettingsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "system" && (
+        <div className="section-card animate-fade-in">
+          <div className="section-card-header">
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Shield size={17} color="#0284c7" />
+              <span className="section-card-title">System Configuration</span>
+            </div>
+          </div>
+          <div style={{ padding: "24px 20px" }}>
+            <div className="form-field" style={{ maxWidth: 400, marginBottom: 20 }}>
+              <label className="form-label" style={{ fontWeight: 600 }}>
+                Policy Expiry Alert Threshold (in Days) <span className="required">*</span>
+              </label>
+              <p style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>
+                Policies ending within this number of days will be flagged as "Expiring Soon" on the dashboard and policy lists.
+              </p>
+              <input
+                type="number"
+                min={1}
+                max={365}
+                className="form-input"
+                value={expiringSoonDays}
+                onChange={(e) => setExpiringSoonDays(parseInt(e.target.value, 10) || 30)}
+                id="input-expiry-days"
+              />
+            </div>
+            <button
+              className="btn btn-primary"
+              onClick={handleSaveSettings}
+              disabled={settingsSaving}
+              id="btn-save-system-settings"
+            >
+              Save Settings
+            </button>
           </div>
         </div>
       )}

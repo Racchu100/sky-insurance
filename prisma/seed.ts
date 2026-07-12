@@ -171,6 +171,15 @@ async function main() {
     });
   }
   console.log(`✅ Seeded ${samplePolicies.length} sample policies`);
+
+  // Seed default system settings
+  await prisma.systemSetting.upsert({
+    where: { key: "expiringSoonDays" },
+    update: {},
+    create: { key: "expiringSoonDays", value: "30" },
+  });
+  console.log("✅ Seeded default system setting: expiringSoonDays = 30");
+
   console.log("✅ Seeding complete!");
 }
 

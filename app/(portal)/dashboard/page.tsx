@@ -23,6 +23,7 @@ interface DashboardStats {
   expiredCount: number;
   newThisMonth: number;
   premiumThisMonth: number;
+  expiringSoonDays?: number;
   expiringPolicies: Array<{
     id: string;
     customerName: string;
@@ -61,7 +62,7 @@ export default function DashboardPage() {
           href: "/policies?status=ACTIVE",
         },
         {
-          label: "Expiring in 30 Days",
+          label: `Expiring in ${stats.expiringSoonDays ?? 30} Days`,
           value: stats.expiringThisMonth,
           icon: AlertTriangle,
           color: "#d97706",
@@ -198,7 +199,7 @@ export default function DashboardPage() {
             }}>
               <Calendar size={15} color="#d97706" />
             </div>
-            <span className="section-card-title">Policies Expiring in Next 30 Days</span>
+            <span className="section-card-title">Policies Expiring in Next {stats?.expiringSoonDays ?? 30} Days</span>
             {stats && (
               <span className="badge badge-expiring" style={{ marginLeft: 4 }}>
                 {stats.expiringThisMonth} policies

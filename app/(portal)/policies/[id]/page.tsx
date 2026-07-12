@@ -45,6 +45,7 @@ interface Policy {
   updatedBy?: { name: string; email: string };
   createdAt: string;
   updatedAt: string;
+  expiringSoonDays?: number;
 }
 
 export default function PolicyDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -168,7 +169,7 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
             <span style={{ fontFamily: "monospace", fontSize: 13, background: "#f1f5f9", padding: "2px 8px", borderRadius: 5 }}>
               {policy.vehicleNo}
             </span>
-            <StatusBadge riskEndDate={policy.riskEndDate} showDays />
+            <StatusBadge riskEndDate={policy.riskEndDate} showDays threshold={policy.expiringSoonDays} />
           </div>
         </div>
 

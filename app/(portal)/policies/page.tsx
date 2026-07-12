@@ -47,6 +47,7 @@ interface PoliciesResponse {
   total: number;
   page: number;
   limit: number;
+  expiringSoonDays?: number;
 }
 
 const COLUMNS = [
@@ -79,6 +80,7 @@ export default function PoliciesPage() {
   const [deleteModal, setDeleteModal] = useState<{ id: string; name: string } | null>(null);
   const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [expiringSoonDays, setExpiringSoonDays] = useState<number>(30);
 
   // Filters
   const [filterInsurer, setFilterInsurer] = useState("");
@@ -127,6 +129,9 @@ export default function PoliciesPage() {
       const data: PoliciesResponse = await res.json();
       setPolicies(data.policies);
       setTotal(data.total);
+      if (data.expiringSoonDays) {
+        setExpiringSoonDays(data.expiringSoonDays);
+      }
     } finally {
       setLoading(false);
     }
@@ -446,7 +451,7 @@ export default function PoliciesPage() {
                     <td style={{ fontWeight: 500 }}>{formatDate(policy.riskEndDate)}</td>
                     <td style={{ fontWeight: 700 }}>{formatCurrency(policy.premium)}</td>
                     <td>
-                      <StatusBadge riskEndDate={policy.riskEndDate} showDays />
+                      <StatusBadge riskEndDate={policy.riskEndDate} showDays threshold={expiringSoonDays} />
                     </td>
 
                   </tr>

@@ -20,7 +20,13 @@ export async function GET(
   });
 
   if (!policy) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(policy);
+
+  const setting = await prisma.systemSetting.findUnique({
+    where: { key: "expiringSoonDays" },
+  });
+  const expiringSoonDays = setting ? parseInt(setting.value, 10) : 30;
+
+  return NextResponse.json({ ...policy, expiringSoonDays });
 }
 
 export async function PUT(
@@ -54,7 +60,12 @@ export async function PUT(
         updatedById: session.user.id,
       },
     });
-    return NextResponse.json(policy);
+    const setting = await prisma.systemSetting.findUnique({
+      where: { key: "expiringSoonDays" },
+    });
+    const expiringSoonDays = setting ? parseInt(setting.value, 10) : 30;
+
+    return NextResponse.json({ ...policy, expiringSoonDays });
   } catch (error: unknown) {
     if ((error as { code?: string }).code === "P2002") {
       return NextResponse.json(

@@ -6,13 +6,18 @@ export async function GET() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const setting = await prisma.systemSetting.findUnique({
+    where: { key: "expiringSoonDays" },
+  });
+  const expiringSoonDays = setting ? parseInt(setting.value, 10) : 30;
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
-  const thirtyDaysFromNow = new Date();
-  thirtyDaysFromNow.setDate(today.getDate() + 30);
+  const thresholdDate = new Date();
+  thresholdDate.setDate(today.getDate() + expiringSoonDays);
 
   const [
     totalActive,
@@ -22,15 +27,15 @@ export async function GET() {
     premiumThisMonth,
     expiringPolicies,
   ] = await Promise.all([
-    // Active policies (end date > today)
+    // Active policies (end date > thresholdDate)
     prisma.policy.count({
-      where: { isDeleted: false, riskEndDate: { gt: thirtyDaysFromNow } },
+      where: { isDeleted: false, riskEndDate: { gt: thresholdDate } },
     }),
-    // Expiring within 30 days
+    // Expiring within threshold
     prisma.policy.count({
       where: {
         isDeleted: false,
-        riskEndDate: { gte: today, lte: thirtyDaysFromNow },
+        riskEndDate: { gte: today, lte: thresholdDate },
       },
     }),
     // Expired
@@ -52,11 +57,11 @@ export async function GET() {
       },
       _sum: { premium: true },
     }),
-    // Policies expiring in next 30 days (for widget)
+    // Policies expiring within threshold (for widget)
     prisma.policy.findMany({
       where: {
         isDeleted: false,
-        riskEndDate: { gte: today, lte: thirtyDaysFromNow },
+        riskEndDate: { gte: today, lte: thresholdDate },
       },
       orderBy: { riskEndDate: "asc" },
       take: 10,
@@ -80,5 +85,6 @@ export async function GET() {
     newThisMonth,
     premiumThisMonth: premiumThisMonth._sum.premium || 0,
     expiringPolicies,
+    expiringSoonDays,
   });
 }

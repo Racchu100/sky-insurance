@@ -2,14 +2,14 @@ import { differenceInDays } from "date-fns";
 
 export type PolicyStatus = "ACTIVE" | "EXPIRING_SOON" | "EXPIRED";
 
-export function getPolicyStatus(riskEndDate: Date | string): PolicyStatus {
+export function getPolicyStatus(riskEndDate: Date | string, threshold: number = 30): PolicyStatus {
   const endDate = new Date(riskEndDate);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const daysRemaining = differenceInDays(endDate, today);
 
   if (daysRemaining < 0) return "EXPIRED";
-  if (daysRemaining <= 30) return "EXPIRING_SOON";
+  if (daysRemaining <= threshold) return "EXPIRING_SOON";
   return "ACTIVE";
 }
 
