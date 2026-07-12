@@ -164,7 +164,9 @@ async function main() {
   for (const policy of samplePolicies) {
     await prisma.policy.upsert({
       where: { policyNo: policy.policyNo },
-      update: {},
+      update: {
+        customerNo: policy.customerNo,
+      },
       create: policy,
     });
   }
