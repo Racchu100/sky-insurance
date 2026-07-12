@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { handleSignOut } from "@/lib/actions";
 import {
   LayoutDashboard,
   FileText,
@@ -168,7 +169,7 @@ export default function Sidebar() {
 
         <button
           className="sidebar-nav-link"
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => handleSignOut()}
           id="logout-btn"
         >
           <LogOut size={17} />
