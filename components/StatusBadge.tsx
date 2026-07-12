@@ -32,6 +32,7 @@ export default function StatusBadge({ riskEndDate, showDays = false, threshold =
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const endDate = new Date(riskEndDate);
+  endDate.setHours(0, 0, 0, 0);
   const daysRemaining = Math.round((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
   return (

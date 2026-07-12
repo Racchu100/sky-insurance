@@ -4,6 +4,7 @@ export type PolicyStatus = "ACTIVE" | "EXPIRING_SOON" | "EXPIRED";
 
 export function getPolicyStatus(riskEndDate: Date | string, threshold: number = 30): PolicyStatus {
   const endDate = new Date(riskEndDate);
+  endDate.setHours(0, 0, 0, 0);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const daysRemaining = differenceInDays(endDate, today);
@@ -31,6 +32,7 @@ export function formatDate(date: Date | string): string {
 
 export function getDaysRemaining(riskEndDate: Date | string): number {
   const endDate = new Date(riskEndDate);
+  endDate.setHours(0, 0, 0, 0);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return differenceInDays(endDate, today);
