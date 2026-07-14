@@ -57,42 +57,44 @@ export default function Sidebar() {
 
   const isAdmin = session?.user?.role === "ADMIN";
 
-  const SidebarContent = ({ collapsed }: { collapsed: boolean }) => (
+  const SidebarContent = ({ collapsed, isMobile }: { collapsed: boolean; isMobile: boolean }) => (
     <>
-      {/* Logo */}
-      <div style={{
-        padding: "24px 20px",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-        display: "flex",
-        justifyContent: collapsed ? "center" : "flex-start",
-        alignItems: "center"
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{
-            width: 38, height: 38,
-            background: "linear-gradient(135deg, #0ea5e9, #0284c7)",
-            borderRadius: 10,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 2px 8px rgba(14,165,233,0.4)",
-            flexShrink: 0
-          }}>
-            <Shield size={20} color="white" />
-          </div>
-          {!collapsed && (
-            <div className="sidebar-logo-text" style={{ flexShrink: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "white", lineHeight: 1.2 }}>
-                Sky Insurance
-              </div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>
-                Policy Portal
-              </div>
+      {/* Logo — hidden on mobile since it's already in the mobile header */}
+      {!isMobile && (
+        <div style={{
+          padding: "24px 20px",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          display: "flex",
+          justifyContent: collapsed ? "center" : "flex-start",
+          alignItems: "center"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{
+              width: 38, height: 38,
+              background: "linear-gradient(135deg, #0ea5e9, #0284c7)",
+              borderRadius: 10,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(14,165,233,0.4)",
+              flexShrink: 0
+            }}>
+              <Shield size={20} color="white" />
             </div>
-          )}
+            {!collapsed && (
+              <div className="sidebar-logo-text" style={{ flexShrink: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "white", lineHeight: 1.2 }}>
+                  Sky Insurance
+                </div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>
+                  Policy Portal
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Nav */}
-      <div style={{ flex: 1, padding: "16px 12px", overflowY: "auto", display: "flex", flexDirection: "column", alignItems: collapsed ? "center" : "stretch" }}>
+      <div style={{ flex: 1, padding: "16px 12px", overflowY: "auto", display: "flex", flexDirection: "column", alignItems: collapsed ? "center" : "stretch", paddingTop: isMobile ? "16px" : "16px" }}>
         {!collapsed && (
           <div className="sidebar-group-title" style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", paddingLeft: 4, marginBottom: 8 }}>
             Main
@@ -305,7 +307,7 @@ export default function Sidebar() {
 
       {/* Sidebar — mobile always full, desktop respects isCollapsed */}
       <aside className={`sidebar ${mobileOpen ? "open" : ""}`} style={{ display: "flex", flexDirection: "column" }}>
-        <SidebarContent collapsed={mobileOpen ? false : isCollapsed} />
+        <SidebarContent collapsed={mobileOpen ? false : isCollapsed} isMobile={mobileOpen} />
       </aside>
     </>
   );
