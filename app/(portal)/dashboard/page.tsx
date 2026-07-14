@@ -24,6 +24,20 @@ interface DashboardStats {
   newThisMonth: number;
   premiumThisMonth: number;
   expiringSoonDays?: number;
+  premiumCollected?: {
+    yearly: {
+      currentValue: number;
+      prevValue: number;
+      percentage: { value: string; type: "up" | "down" | "flat" };
+      labels: { current: string; prev: string };
+    };
+    monthly: {
+      currentValue: number;
+      prevValue: number;
+      percentage: { value: string; type: "up" | "down" | "flat" };
+      labels: { current: string; prev: string };
+    };
+  };
   expiringPolicies: Array<{
     id: string;
     customerName: string;
@@ -34,6 +48,122 @@ interface DashboardStats {
     premium: number;
     mobileNo: string;
   }>;
+}
+
+function PremiumTrendCard({
+  title,
+  subtitle,
+  currentValue,
+  prevValue,
+  percentage,
+  labels,
+  colorScheme,
+}: {
+  title: string;
+  subtitle: string;
+  currentValue: number;
+  prevValue: number;
+  percentage: { value: string; type: "up" | "down" | "flat" };
+  labels: { current: string; prev: string };
+  colorScheme: "red" | "green";
+}) {
+  const maxVal = Math.max(currentValue, prevValue);
+  const chartHeight = 80;
+
+  const prevHeight = maxVal > 0 ? (prevValue / maxVal) * chartHeight : 4;
+  const currentHeight = maxVal > 0 ? (currentValue / maxVal) * chartHeight : 4;
+
+  const prevColor = colorScheme === "red" ? "#fca5a5" : "#86efac";
+  const currentColor = colorScheme === "red" ? "#dc2626" : "#16a34a";
+  const pctColor = percentage.type === "up" ? "#16a34a" : percentage.type === "down" ? "#dc2626" : "#64748b";
+  const pctBg = percentage.type === "up" ? "#dcfce7" : percentage.type === "down" ? "#fee2e2" : "#f1f5f9";
+
+  return (
+    <div className="section-card" style={{
+      padding: "20px 24px",
+      display: "flex",
+      flexDirection: "column",
+      gap: 16,
+      minHeight: 260,
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            {title}
+          </div>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+            {subtitle}
+          </div>
+        </div>
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+          background: pctBg,
+          color: pctColor,
+          padding: "4px 8px",
+          borderRadius: 8,
+          fontSize: 12,
+          fontWeight: 700,
+        }}>
+          <span>{percentage.value}%</span>
+          <span>{percentage.type === "up" ? "↑" : percentage.type === "down" ? "↓" : "→"}</span>
+        </div>
+      </div>
+
+      <div style={{ fontSize: 32, fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>
+        {formatCurrency(currentValue)}
+      </div>
+
+      <div style={{
+        position: "relative",
+        height: chartHeight + 20,
+        display: "flex",
+        alignItems: "flex-end",
+        justifyContent: "center",
+        gap: 24,
+        paddingBottom: 10,
+        borderBottom: "1px solid #f1f5f9",
+      }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", pointerEvents: "none", zIndex: 0 }}>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} style={{ width: "100%", height: 1, borderTop: "1px dashed #f1f5f9" }} />
+          ))}
+        </div>
+
+        <div style={{
+          position: "relative",
+          width: 32,
+          height: prevHeight,
+          background: prevColor,
+          borderRadius: "6px 6px 0 0",
+          zIndex: 1,
+          transition: "height 0.5s ease-out",
+        }} title={`${labels.prev}: ${formatCurrency(prevValue)}`} />
+
+        <div style={{
+          position: "relative",
+          width: 32,
+          height: currentHeight,
+          background: currentColor,
+          borderRadius: "6px 6px 0 0",
+          zIndex: 1,
+          transition: "height 0.5s ease-out",
+        }} title={`${labels.current}: ${formatCurrency(currentValue)}`} />
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 11, color: "#64748b" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 12, height: 12, background: prevColor, borderRadius: 3 }} />
+          <span>{labels.prev}</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 12, height: 12, background: currentColor, borderRadius: 3 }} />
+          <span>{labels.current}</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function DashboardPage() {
@@ -151,42 +281,47 @@ export default function DashboardPage() {
             })}
       </div>
 
-      {/* Premium this month */}
-      {stats && (
-        <div style={{
-          background: "linear-gradient(135deg, #0c1a2e 0%, #0f2744 100%)",
-          borderRadius: 16, padding: "20px 24px",
-          marginBottom: 28,
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          flexWrap: "wrap", gap: 12
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{
-              width: 44, height: 44,
-              background: "rgba(14,165,233,0.2)",
-              borderRadius: 12,
-              display: "flex", alignItems: "center", justifyContent: "center"
-            }}>
-              <TrendingUp size={22} color="#0ea5e9" />
+      {/* Premium Collected Trend Cards */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+        gap: 16,
+        marginBottom: 28,
+      }}>
+        {loading ? (
+          Array(2).fill(0).map((_, i) => (
+            <div key={i} className="section-card" style={{ height: 260, padding: 20 }}>
+              <div className="skeleton" style={{ height: 20, width: "50%", marginBottom: 16 }} />
+              <div className="skeleton" style={{ height: 36, width: "30%", marginBottom: 24 }} />
+              <div className="skeleton" style={{ height: 80, width: "100%", marginBottom: 16 }} />
+              <div className="skeleton" style={{ height: 16, width: "60%" }} />
             </div>
-            <div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 2 }}>
-                Total Premium Collected This Month
-              </div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: "white" }}>
-                {formatCurrency(stats.premiumThisMonth)}
-              </div>
-            </div>
-          </div>
-          <Link href="/policies" className="btn" style={{
-            background: "rgba(255,255,255,0.1)",
-            color: "white",
-            border: "1px solid rgba(255,255,255,0.15)"
-          }}>
-            View All Policies <ArrowRight size={15} />
-          </Link>
-        </div>
-      )}
+          ))
+        ) : (
+          stats?.premiumCollected && (
+            <>
+              <PremiumTrendCard
+                title="Premium Collected"
+                subtitle="Yearly trend"
+                currentValue={stats.premiumCollected.yearly.currentValue}
+                prevValue={stats.premiumCollected.yearly.prevValue}
+                percentage={stats.premiumCollected.yearly.percentage}
+                labels={stats.premiumCollected.yearly.labels}
+                colorScheme="red"
+              />
+              <PremiumTrendCard
+                title="Premium Collected"
+                subtitle="Monthly Trend"
+                currentValue={stats.premiumCollected.monthly.currentValue}
+                prevValue={stats.premiumCollected.monthly.prevValue}
+                percentage={stats.premiumCollected.monthly.percentage}
+                labels={stats.premiumCollected.monthly.labels}
+                colorScheme="green"
+              />
+            </>
+          )
+        )}
+      </div>
 
       {/* Expiring policies widget */}
       <div className="section-card">
