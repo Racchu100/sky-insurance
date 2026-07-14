@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -54,6 +55,31 @@ interface Policy {
 
 function DocumentCard({ title, dataUrl }: { title: string; dataUrl: string }) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const modalMarkup = modalOpen && (
+    <div className="modal-overlay" onClick={() => setModalOpen(false)}>
+      <div className="modal-content" style={{ maxWidth: 800, padding: 16 }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <span style={{ fontWeight: 600, fontSize: 15 }}>{title}</span>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => setModalOpen(false)}>Close</button>
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", background: "#f8fafc", borderRadius: 8, padding: 8 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src={dataUrl} 
+            alt={title} 
+            style={{ maxWidth: "100%", maxHeight: "70vh", objectFit: "contain", borderRadius: 6 }} 
+          />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <div style={{
@@ -93,24 +119,7 @@ function DocumentCard({ title, dataUrl }: { title: string; dataUrl: string }) {
         </div>
       </div>
 
-      {modalOpen && (
-        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="modal-content" style={{ maxWidth: 800, padding: 16 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <span style={{ fontWeight: 600, fontSize: 15 }}>{title}</span>
-              <button className="btn btn-secondary btn-sm" onClick={() => setModalOpen(false)}>Close</button>
-            </div>
-            <div style={{ display: "flex", justifyContent: "center", background: "#f8fafc", borderRadius: 8, padding: 8 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={dataUrl} 
-                alt={title} 
-                style={{ maxWidth: "100%", maxHeight: "70vh", objectFit: "contain", borderRadius: 6 }} 
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {mounted && modalOpen && createPortal(modalMarkup, document.body)}
     </>
   );
 }
