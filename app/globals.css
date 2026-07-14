@@ -511,6 +511,10 @@
     width: 100%;
   }
 
+  .mobile-header {
+    display: none;
+  }
+
   /* Mobile responsive */
   @media (max-width: 768px) {
     .sidebar {
@@ -521,12 +525,16 @@
     }
     .main-content {
       margin-left: 0;
+      padding-top: 56px;
     }
     .content-area {
       padding: 16px;
     }
     .form-grid {
       grid-template-columns: 1fr;
+    }
+    .mobile-header {
+      display: flex !important;
     }
   }
 

@@ -181,24 +181,47 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile menu button */}
-      <button
-        className="lg:hidden"
-        onClick={() => setMobileOpen(!mobileOpen)}
-        id="mobile-menu-toggle"
+      {/* Mobile Header Bar */}
+      <div
+        className="mobile-header"
         style={{
-          position: "fixed", top: 16, left: 16, zIndex: 200,
-          width: 40, height: 40,
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 56,
           background: "white",
-          border: "1px solid #e2e8f0",
-          borderRadius: 10,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+          borderBottom: "1px solid #e2e8f0",
+          display: "flex",
+          alignItems: "center",
+          padding: "0 16px",
+          zIndex: 100,
+          boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
         }}
       >
-        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          id="mobile-menu-toggle"
+          style={{
+            width: 38,
+            height: 38,
+            background: "white",
+            border: "1px solid #e2e8f0",
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: "#1e293b",
+          }}
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+        <Link href="/dashboard" style={{ marginLeft: 12, fontWeight: 700, fontSize: 16, color: "#0f172a", display: "flex", alignItems: "center", gap: 6, textDecoration: "none" }}>
+          <Shield size={18} color="#0284c7" />
+          <span>Sky Insurance</span>
+        </Link>
+      </div>
 
       {/* Mobile overlay */}
       {mobileOpen && (
