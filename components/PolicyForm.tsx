@@ -549,6 +549,7 @@ export default function PolicyForm({
 
   const watchNetPremium = watch("netPremium");
   const watchPremium = watch("premium");
+  const watchRiskStartDate = watch("riskStartDate");
 
   // Auto-calc GST = Premium - Net Premium
   useEffect(() => {
@@ -559,6 +560,19 @@ export default function PolicyForm({
       setValue("gst", gst);
     }
   }, [watchNetPremium, watchPremium, setValue]);
+
+  // Auto-calc Risk End Date = Risk Start Date + 1 year - 1 day
+  useEffect(() => {
+    if (watchRiskStartDate) {
+      const startDate = new Date(watchRiskStartDate);
+      if (!isNaN(startDate.getTime())) {
+        const endDate = new Date(startDate);
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        endDate.setDate(endDate.getDate() - 1);
+        setValue("riskEndDate", toInputDate(endDate));
+      }
+    }
+  }, [watchRiskStartDate, setValue]);
 
   const fetchCompanies = useCallback(async () => {
     const res = await fetch("/api/insurance-companies");
