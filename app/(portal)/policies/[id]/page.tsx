@@ -161,8 +161,12 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
         setIsEditing(false);
         showToast("Policy updated successfully!", "success");
       } else {
-        const err = await res.json();
-        showToast(err.error || "Failed to update policy", "error");
+        let errMsg = "Failed to update policy";
+        try {
+          const err = await res.json();
+          errMsg = err.error || errMsg;
+        } catch {}
+        showToast(errMsg, "error");
       }
     } finally {
       setIsSaving(false);

@@ -31,8 +31,12 @@ export default function NewPolicyPage() {
         showToast("Policy created successfully!", "success");
         setTimeout(() => router.push(`/policies/${policy.id}`), 800);
       } else {
-        const err = await res.json();
-        showToast(err.error || "Failed to create policy", "error");
+        let errMsg = "Failed to create policy";
+        try {
+          const err = await res.json();
+          errMsg = err.error || errMsg;
+        } catch {}
+        showToast(errMsg, "error");
       }
     } finally {
       setIsLoading(false);
