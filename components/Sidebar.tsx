@@ -283,24 +283,24 @@ export default function Sidebar() {
           id="desktop-sidebar-toggle"
           style={{
             position: "fixed",
-            top: 24,
-            left: isCollapsed ? 60 : 228,
+            top: 22,
+            left: isCollapsed ? 54 : 222,
             zIndex: 201,
-            width: 24,
-            height: 24,
+            width: 36,
+            height: 36,
             background: "#0284c7",
-            border: "1px solid rgba(255,255,255,0.15)",
+            border: "2px solid rgba(255,255,255,0.25)",
             borderRadius: "50%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
             color: "white",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease",
+            boxShadow: "0 4px 12px rgba(2,132,199,0.4)",
+            transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease, box-shadow 0.2s ease",
           }}
         >
-          {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
       )}
 
