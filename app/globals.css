@@ -632,17 +632,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      min-width: 0;
+      overflow: hidden;
     }
     .policy-info-card > div:first-child {
       justify-content: center;
       margin-bottom: 4px;
+      width: 100%;
     }
     .policy-info-card span {
       font-size: 8px;
+      word-break: break-word;
     }
     .policy-info-card div[style] {
       font-size: 12px !important;
       text-align: center;
+      word-break: break-word;
+      width: 100%;
     }
   }
 
