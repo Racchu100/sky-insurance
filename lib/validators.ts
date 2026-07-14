@@ -7,6 +7,7 @@ export const policySchema = z.object({
   aadhaarCard: z.string().optional().default(""),
   panCard: z.string().optional().default(""),
   drivingLicense: z.string().optional().default(""),
+  ePolicy: z.string().optional().default(""),
   mobileNo: z
     .string()
     .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),

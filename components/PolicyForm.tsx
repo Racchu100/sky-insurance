@@ -196,6 +196,183 @@ function DocumentUploadField({
   );
 }
 
+const compressPDF = (file: File): Promise<string> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (file.type !== "application/pdf") {
+        reject(new Error("Please upload a PDF file."));
+        return;
+      }
+      const stream = file.stream();
+      const compressedStream = stream.pipeThrough(new CompressionStream("gzip"));
+      const response = new Response(compressedStream);
+      const blob = await response.blob();
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = () => reject(new Error("Failed to read compressed file"));
+      reader.readAsDataURL(blob);
+    } catch (err: unknown) {
+      console.error(err);
+      reject(new Error("PDF compression failed. Ensure your browser supports it."));
+    }
+  });
+};
+
+function PDFUploadField({
+  label,
+  value,
+  onChange,
+  error,
+}: {
+  label: string;
+  value?: string;
+  onChange: (value: string) => void;
+  error?: string;
+}) {
+  const [compressing, setCompressing] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [origSize, setOrigSize] = useState<string>("");
+  const [compSize, setCompSize] = useState<string>("");
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      setUploadError("Please select a PDF file.");
+      return;
+    }
+
+    setUploadError("");
+    setCompressing(true);
+
+    const originalMb = (file.size / (1024 * 1024)).toFixed(2);
+    setOrigSize(`${originalMb} MB`);
+
+    try {
+      const compressedDataUrl = await compressPDF(file);
+      onChange(compressedDataUrl);
+
+      const base64Length = compressedDataUrl.split(",")[1].length;
+      const compressedBytes = base64Length * 0.75;
+      const compressedMb = (compressedBytes / (1024 * 1024)).toFixed(2);
+      setCompSize(`${compressedMb} MB`);
+    } catch (err: unknown) {
+      console.error(err);
+      setUploadError(err instanceof Error ? err.message : "Error compressing PDF.");
+    } finally {
+      setCompressing(false);
+    }
+  };
+
+  return (
+    <div className="form-field" style={{ display: "flex", flexDirection: "column" }}>
+      <label className="form-label" style={{ fontWeight: 600 }}>{label}</label>
+
+      {value ? (
+        <div style={{
+          border: "1px solid #e2e8f0",
+          borderRadius: 10,
+          background: "#f8fafc",
+          padding: 16,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          height: 140
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 8, background: "#fef2f2",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              border: "1px solid #fee2e2",
+              flexShrink: 0
+            }}>
+              <FileText size={18} color="#ef4444" />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>E-Policy PDF Uploaded</span>
+              {origSize && compSize && (
+                <span style={{ fontSize: 11, color: "#64748b" }}>
+                  Gzip: {origSize} &rarr; {compSize}
+                </span>
+              )}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              onChange("");
+              setOrigSize("");
+              setCompSize("");
+            }}
+            style={{
+              background: "#ef4444",
+              color: "white",
+              border: "none",
+              borderRadius: 6,
+              padding: "6px 12px",
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: "pointer",
+              transition: "background 0.2s",
+              flexShrink: 0
+            }}
+          >
+            Remove
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          border: "2px dashed #cbd5e1",
+          borderRadius: 10,
+          background: "#f8fafc",
+          height: 140,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          position: "relative",
+          transition: "border-color 0.2s ease"
+        }}>
+          {compressing ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <RefreshCw size={20} className="animate-spin" style={{ color: "#0284c7" }} />
+              <span style={{ fontSize: 12, color: "#64748b" }}>Compressing PDF...</span>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: 12 }}>
+              <span style={{ fontSize: 13, color: "#0284c7", fontWeight: 500 }}>Upload E-Policy PDF</span>
+              <span style={{ fontSize: 11, color: "#94a3b8", textAlign: "center" }}>PDF auto-compressed client-side</span>
+            </div>
+          )}
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            disabled={compressing}
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: 0,
+              cursor: "pointer"
+            }}
+          />
+        </div>
+      )}
+
+      {(error || uploadError) && (
+        <span className="form-error" style={{ marginTop: 4 }}>
+          <AlertCircle size={12} /> {error || uploadError}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function toInputDate(date: Date | string | undefined): string {
   if (!date) return "";
   const d = new Date(date);
@@ -270,6 +447,7 @@ export default function PolicyForm({
       aadhaarCard: defaultValues?.aadhaarCard || "",
       panCard: defaultValues?.panCard || "",
       drivingLicense: defaultValues?.drivingLicense || "",
+      ePolicy: defaultValues?.ePolicy || "",
     },
   });
 
@@ -489,7 +667,7 @@ export default function PolicyForm({
       ),
     },
     {
-      title: "Customer Private Documents",
+      title: "Policy Documents & Private Info",
       icon: <Shield size={16} color="#dc2626" />,
       fields: (
         <div className="form-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
@@ -510,6 +688,12 @@ export default function PolicyForm({
             value={watch("drivingLicense")}
             onChange={(val) => setValue("drivingLicense", val)}
             error={errors.drivingLicense?.message}
+          />
+          <PDFUploadField
+            label="E-Policy Document"
+            value={watch("ePolicy")}
+            onChange={(val) => setValue("ePolicy", val)}
+            error={errors.ePolicy?.message}
           />
         </div>
       ),
@@ -569,7 +753,7 @@ export default function PolicyForm({
                 date: toInputDate(new Date()),
                 vehicleType: "PVT",
                 od: 0, netPremium: 0, gst: 0, premium: 0, investment: 0,
-                aadhaarCard: "", panCard: "", drivingLicense: "",
+                aadhaarCard: "", panCard: "", drivingLicense: "", ePolicy: "",
               });
               document.getElementById("field-customerName")?.focus();
             })}

@@ -51,6 +51,79 @@ interface Policy {
   aadhaarCard?: string;
   panCard?: string;
   drivingLicense?: string;
+  ePolicy?: string;
+}
+
+const decompressPDF = async (compressedDataUrl: string): Promise<string> => {
+  const res = await fetch(compressedDataUrl);
+  const blob = await res.blob();
+  const decompressedStream = blob.stream().pipeThrough(new DecompressionStream("gzip"));
+  const response = new Response(decompressedStream);
+  const decompressedBlob = await response.blob();
+  const pdfBlob = new Blob([await decompressedBlob.arrayBuffer()], { type: "application/pdf" });
+  return URL.createObjectURL(pdfBlob);
+};
+
+function EPolicyCard({ dataUrl }: { dataUrl: string }) {
+  const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleView = async () => {
+    setDownloading(true);
+    setError("");
+    try {
+      const url = await decompressPDF(dataUrl);
+      window.open(url, "_blank");
+    } catch (err: unknown) {
+      console.error(err);
+      setError("Failed to decompress PDF document.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <div style={{
+      border: "1px solid #e2e8f0",
+      borderRadius: 12,
+      overflow: "hidden",
+      background: "#f8fafc",
+      display: "flex",
+      flexDirection: "column"
+    }}>
+      <div style={{ padding: "10px 14px", borderBottom: "1px solid #e2e8f0", background: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>E-Policy Document</span>
+      </div>
+      <div style={{
+        height: 180,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 12,
+        padding: 20
+      }}>
+        <div style={{
+          width: 50, height: 50, borderRadius: "50%", background: "#fef2f2",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          border: "1px solid #fee2e2",
+          flexShrink: 0
+        }}>
+          <FileText size={24} color="#ef4444" />
+        </div>
+        <button
+          type="button"
+          onClick={handleView}
+          disabled={downloading}
+          className="btn btn-primary btn-sm"
+          style={{ width: "100%", maxWidth: 160 }}
+        >
+          {downloading ? "Decompressing..." : "View PDF"}
+        </button>
+        {error && <span style={{ fontSize: 11, color: "#ef4444" }}>{error}</span>}
+      </div>
+    </div>
+  );
 }
 
 function DocumentCard({ title, dataUrl }: { title: string; dataUrl: string }) {
@@ -323,13 +396,13 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
             ))}
           </div>
 
-          {/* Customer Private Documents */}
-          {(policy.aadhaarCard || policy.panCard || policy.drivingLicense) && (
+          {/* Policy Documents & Private Info */}
+          {(policy.aadhaarCard || policy.panCard || policy.drivingLicense || policy.ePolicy) && (
             <div className="section-card" style={{ marginBottom: 20 }}>
               <div className="section-card-header">
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Shield size={17} color="#dc2626" />
-                  <span className="section-card-title">Customer Private Documents</span>
+                  <span className="section-card-title">Policy Documents & Private Info</span>
                 </div>
               </div>
               <div style={{ padding: "20px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
@@ -341,6 +414,9 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
                 )}
                 {policy.drivingLicense && (
                   <DocumentCard title="Driving License" dataUrl={policy.drivingLicense} />
+                )}
+                {policy.ePolicy && (
+                  <EPolicyCard dataUrl={policy.ePolicy} />
                 )}
               </div>
             </div>

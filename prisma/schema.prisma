@@ -58,6 +58,7 @@ model Policy {
   aadhaarCard    String?
   panCard        String?
   drivingLicense String?
+  ePolicy        String?
 
   createdById String?
   updatedById String?
