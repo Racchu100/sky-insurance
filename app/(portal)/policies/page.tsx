@@ -15,6 +15,8 @@ import {
   Trash2,
   Eye,
   X,
+  FileText,
+  RefreshCw,
 } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -40,7 +42,18 @@ interface Policy {
   investment: number;
   od: number;
   createdBy?: { name: string };
+  ePolicy?: string;
 }
+
+const decompressPDF = async (compressedDataUrl: string): Promise<string> => {
+  const res = await fetch(compressedDataUrl);
+  const blob = await res.blob();
+  const decompressedStream = blob.stream().pipeThrough(new DecompressionStream("gzip"));
+  const response = new Response(decompressedStream);
+  const decompressedBlob = await response.blob();
+  const pdfBlob = new Blob([await decompressedBlob.arrayBuffer()], { type: "application/pdf" });
+  return URL.createObjectURL(pdfBlob);
+};
 
 interface PoliciesResponse {
   policies: Policy[];
@@ -81,6 +94,20 @@ export default function PoliciesPage() {
   const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [expiringSoonDays, setExpiringSoonDays] = useState<number>(30);
+  const [viewingPdfId, setViewingPdfId] = useState<string | null>(null);
+
+  const handleViewPDF = async (policyId: string, compressedDataUrl: string) => {
+    setViewingPdfId(policyId);
+    try {
+      const url = await decompressPDF(compressedDataUrl);
+      window.open(url, "_blank");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to decompress PDF document.");
+    } finally {
+      setViewingPdfId(null);
+    }
+  };
 
   // Filters
   const [filterInsurer, setFilterInsurer] = useState("");
@@ -447,7 +474,42 @@ export default function PoliciesPage() {
                         {policy.vehicleType}
                       </span>
                     </td>
-                    <td style={{ fontSize: 12, color: "#64748b", fontFamily: "monospace" }}>{policy.policyNo}</td>
+                    <td style={{ fontSize: 12, color: "#64748b", fontFamily: "monospace" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span>{policy.policyNo}</span>
+                        {policy.ePolicy && (
+                          <button
+                            type="button"
+                            disabled={viewingPdfId !== null}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewPDF(policy.id, policy.ePolicy!);
+                            }}
+                            title="View E-Policy PDF"
+                            style={{
+                              cursor: "pointer",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: 22,
+                              height: 22,
+                              borderRadius: 4,
+                              background: "#fee2e2",
+                              color: "#ef4444",
+                              border: "none",
+                              padding: 0,
+                              transition: "background 0.2s"
+                            }}
+                          >
+                            {viewingPdfId === policy.id ? (
+                              <RefreshCw size={11} className="animate-spin" style={{ color: "#ef4444" }} />
+                            ) : (
+                              <FileText size={11} />
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </td>
                     <td style={{ fontWeight: 500 }}>{formatDate(policy.riskEndDate)}</td>
                     <td style={{ fontWeight: 700 }}>{formatCurrency(policy.premium)}</td>
                     <td>
