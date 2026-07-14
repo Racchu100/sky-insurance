@@ -283,7 +283,7 @@ export default function Sidebar() {
           id="desktop-sidebar-toggle"
           style={{
             position: "fixed",
-            top: 22,
+            top: 70,
             left: isCollapsed ? 54 : 222,
             zIndex: 201,
             width: 36,
