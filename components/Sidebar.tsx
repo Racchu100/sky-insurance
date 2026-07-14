@@ -275,7 +275,7 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Desktop collapse/expand toggle button */}
+      {/* Desktop collapse/expand toggle button — desktop only */}
       {mounted && (
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -291,7 +291,6 @@ export default function Sidebar() {
             background: "#0284c7",
             border: "2px solid rgba(255,255,255,0.25)",
             borderRadius: "50%",
-            display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
