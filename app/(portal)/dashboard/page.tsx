@@ -75,8 +75,6 @@ function PremiumTrendCard({
 
   const prevColor = colorScheme === "red" ? "#fca5a5" : "#86efac";
   const currentColor = colorScheme === "red" ? "#dc2626" : "#16a34a";
-  const pctColor = percentage.type === "up" ? "#16a34a" : percentage.type === "down" ? "#dc2626" : "#64748b";
-  const pctBg = percentage.type === "up" ? "#dcfce7" : percentage.type === "down" ? "#fee2e2" : "#f1f5f9";
 
   return (
     <div className="section-card" style={{
@@ -94,20 +92,6 @@ function PremiumTrendCard({
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             {subtitle}
           </div>
-        </div>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 4,
-          background: pctBg,
-          color: pctColor,
-          padding: "4px 8px",
-          borderRadius: 8,
-          fontSize: 12,
-          fontWeight: 700,
-        }}>
-          <span>{percentage.value}%</span>
-          <span>{percentage.type === "up" ? "↑" : percentage.type === "down" ? "↓" : "→"}</span>
         </div>
       </div>
 
