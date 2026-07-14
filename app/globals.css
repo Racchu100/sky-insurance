@@ -618,6 +618,25 @@
       padding: 7px 12px;
       font-size: 13px;
     }
+    /* Compact table on mobile */
+    .data-table {
+      font-size: 12px;
+    }
+    .data-table thead th {
+      padding: 7px 8px;
+      font-size: 10px;
+    }
+    .data-table tbody td {
+      padding: 8px 8px;
+    }
+    /* Compact search/filter bar section on mobile */
+    .search-container {
+      max-width: 100%;
+    }
+    /* Reduce section card body padding on mobile */
+    .section-card {
+      margin-bottom: 10px;
+    }
     /* Policy detail info grid — 3 per row on mobile */
     .policy-info-grid {
       grid-template-columns: repeat(3, 1fr);
