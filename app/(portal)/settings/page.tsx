@@ -74,16 +74,43 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    fetch("/api/insurance-companies").then((r) => r.json()).then(setCompanies);
-    if (isAdmin) {
-      fetch("/api/users").then((r) => r.json()).then(setUsers);
-      fetch("/api/settings")
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.expiringSoonDays) setExpiringSoonDays(data.expiringSoonDays);
-        })
-        .catch(() => {});
-    }
+    const loadSettingsData = async () => {
+      try {
+        const resComp = await fetch("/api/insurance-companies");
+        if (resComp.ok) {
+          const data = await resComp.json().catch(() => null);
+          if (Array.isArray(data)) setCompanies(data);
+        }
+      } catch (err) {
+        console.error("Failed to load companies:", err);
+      }
+
+      if (isAdmin) {
+        try {
+          const resUsers = await fetch("/api/users");
+          if (resUsers.ok) {
+            const data = await resUsers.json().catch(() => null);
+            if (Array.isArray(data)) setUsers(data);
+          }
+        } catch (err) {
+          console.error("Failed to load users:", err);
+        }
+
+        try {
+          const resSettings = await fetch("/api/settings");
+          if (resSettings.ok) {
+            const data = await resSettings.json().catch(() => null);
+            if (data && data.expiringSoonDays) {
+              setExpiringSoonDays(data.expiringSoonDays);
+            }
+          }
+        } catch (err) {
+          console.error("Failed to load settings:", err);
+        }
+      }
+    };
+
+    loadSettingsData();
   }, [isAdmin]);
 
   const handleSaveSettings = async () => {

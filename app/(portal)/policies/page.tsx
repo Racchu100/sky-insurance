@@ -216,12 +216,17 @@ export default function PoliciesPage() {
     setLoading(true);
     try {
       const res = await fetch(`/api/policies?${buildQueryParams()}`);
+      if (!res.ok) throw new Error("Server error fetching policies");
       const data: PoliciesResponse = await res.json();
-      setPolicies(data.policies);
-      setTotal(data.total);
+      setPolicies(data.policies || []);
+      setTotal(data.total || 0);
       if (data.expiringSoonDays) {
         setExpiringSoonDays(data.expiringSoonDays);
       }
+    } catch (err) {
+      console.error("Failed to fetch policies:", err);
+      setPolicies([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -235,8 +240,12 @@ export default function PoliciesPage() {
 
   useEffect(() => {
     fetch("/api/insurance-companies")
-      .then((r) => r.json())
-      .then(setCompanies);
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => setCompanies(Array.isArray(data) ? data : []))
+      .catch((err) => {
+        console.error("Failed to load companies:", err);
+        setCompanies([]);
+      });
   }, []);
 
   const handleSort = (key: string) => {

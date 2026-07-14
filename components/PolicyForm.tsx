@@ -576,9 +576,22 @@ export default function PolicyForm({
   }, [watchRiskStartDate, setValue]);
 
   const fetchCompanies = useCallback(async () => {
-    const res = await fetch("/api/insurance-companies");
-    const data = await res.json();
-    setCompanies(data);
+    try {
+      const res = await fetch("/api/insurance-companies");
+      if (!res.ok) {
+        throw new Error(`Server returned status ${res.status}`);
+      }
+      const text = await res.text();
+      if (!text) {
+        setCompanies([]);
+        return;
+      }
+      const data = JSON.parse(text);
+      setCompanies(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch companies:", err);
+      setCompanies([]);
+    }
   }, []);
 
   useEffect(() => {
