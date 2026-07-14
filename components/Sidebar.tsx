@@ -57,14 +57,14 @@ export default function Sidebar() {
 
   const isAdmin = session?.user?.role === "ADMIN";
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ collapsed }: { collapsed: boolean }) => (
     <>
       {/* Logo */}
       <div style={{
         padding: "24px 20px",
         borderBottom: "1px solid rgba(255,255,255,0.08)",
         display: "flex",
-        justifyContent: isCollapsed ? "center" : "flex-start",
+        justifyContent: collapsed ? "center" : "flex-start",
         alignItems: "center"
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -78,7 +78,7 @@ export default function Sidebar() {
           }}>
             <Shield size={20} color="white" />
           </div>
-          {!isCollapsed && (
+          {!collapsed && (
             <div className="sidebar-logo-text" style={{ flexShrink: 0 }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: "white", lineHeight: 1.2 }}>
                 Sky Insurance
@@ -92,8 +92,8 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <div style={{ flex: 1, padding: "16px 12px", overflowY: "auto", display: "flex", flexDirection: "column", alignItems: isCollapsed ? "center" : "stretch" }}>
-        {!isCollapsed && (
+      <div style={{ flex: 1, padding: "16px 12px", overflowY: "auto", display: "flex", flexDirection: "column", alignItems: collapsed ? "center" : "stretch" }}>
+        {!collapsed && (
           <div className="sidebar-group-title" style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", paddingLeft: 4, marginBottom: 8 }}>
             Main
           </div>
@@ -109,7 +109,7 @@ export default function Sidebar() {
                   href={href}
                   onClick={() => setMobileOpen(false)}
                   className="sidebar-nav-link"
-                  style={{ justifyContent: isCollapsed ? "center" : "flex-start" }}
+                  style={{ justifyContent: collapsed ? "center" : "flex-start" }}
                 >
                   <div style={{
                     width: 28, height: 28,
@@ -120,7 +120,7 @@ export default function Sidebar() {
                   }}>
                     <Icon size={15} color="white" />
                   </div>
-                  {!isCollapsed && <span className="sidebar-nav-label">{label}</span>}
+                  {!collapsed && <span className="sidebar-nav-label">{label}</span>}
                 </Link>
               );
             }
@@ -130,12 +130,12 @@ export default function Sidebar() {
                 href={href}
                 onClick={() => setMobileOpen(false)}
                 className={`sidebar-nav-link ${active ? "active" : ""}`}
-                style={{ justifyContent: isCollapsed ? "center" : "flex-start" }}
-                title={isCollapsed ? label : undefined}
+                style={{ justifyContent: collapsed ? "center" : "flex-start" }}
+                title={collapsed ? label : undefined}
               >
                 <Icon size={17} />
-                {!isCollapsed && <span className="sidebar-nav-label">{label}</span>}
-                {active && !isCollapsed && <ChevronRight size={14} className="sidebar-chevron" style={{ marginLeft: "auto" }} />}
+                {!collapsed && <span className="sidebar-nav-label">{label}</span>}
+                {active && !collapsed && <ChevronRight size={14} className="sidebar-chevron" style={{ marginLeft: "auto" }} />}
               </Link>
             );
           })}
@@ -143,7 +143,7 @@ export default function Sidebar() {
 
         {isAdmin && (
           <>
-            {!isCollapsed && (
+            {!collapsed && (
               <div className="sidebar-group-title" style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", paddingLeft: 4, marginBottom: 8, marginTop: 20 }}>
                 Admin
               </div>
@@ -157,12 +157,12 @@ export default function Sidebar() {
                     href={href}
                     onClick={() => setMobileOpen(false)}
                     className={`sidebar-nav-link ${active ? "active" : ""}`}
-                    style={{ justifyContent: isCollapsed ? "center" : "flex-start" }}
-                    title={isCollapsed ? label : undefined}
+                    style={{ justifyContent: collapsed ? "center" : "flex-start" }}
+                    title={collapsed ? label : undefined}
                   >
                     <Icon size={17} />
-                    {!isCollapsed && <span className="sidebar-nav-label">{label}</span>}
-                    {active && !isCollapsed && <ChevronRight size={14} className="sidebar-chevron" style={{ marginLeft: "auto" }} />}
+                    {!collapsed && <span className="sidebar-nav-label">{label}</span>}
+                    {active && !collapsed && <ChevronRight size={14} className="sidebar-chevron" style={{ marginLeft: "auto" }} />}
                   </Link>
                 );
               })}
@@ -177,7 +177,7 @@ export default function Sidebar() {
         borderTop: "1px solid rgba(255,255,255,0.08)",
         display: "flex",
         flexDirection: "column",
-        alignItems: isCollapsed ? "center" : "stretch"
+        alignItems: collapsed ? "center" : "stretch"
       }}>
         <div style={{
           display: "flex", alignItems: "center", gap: 10,
@@ -185,7 +185,7 @@ export default function Sidebar() {
           background: "rgba(255,255,255,0.06)",
           borderRadius: 10,
           marginBottom: 8,
-          justifyContent: isCollapsed ? "center" : "flex-start",
+          justifyContent: collapsed ? "center" : "flex-start",
         }}>
           <div style={{
             width: 32, height: 32,
@@ -196,7 +196,7 @@ export default function Sidebar() {
           }}>
             <User size={16} color="white" />
           </div>
-          {!isCollapsed && (
+          {!collapsed && (
             <div className="sidebar-user-info" style={{ overflow: "hidden", flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {session?.user?.name}
@@ -212,11 +212,11 @@ export default function Sidebar() {
           className="sidebar-nav-link"
           onClick={() => handleSignOut()}
           id="logout-btn"
-          style={{ justifyContent: isCollapsed ? "center" : "flex-start" }}
-          title={isCollapsed ? "Sign Out" : undefined}
+          style={{ justifyContent: collapsed ? "center" : "flex-start" }}
+          title={collapsed ? "Sign Out" : undefined}
         >
           <LogOut size={17} />
-          {!isCollapsed && <span className="sidebar-nav-label">Sign Out</span>}
+          {!collapsed && <span className="sidebar-nav-label">Sign Out</span>}
         </button>
       </div>
     </>
@@ -303,9 +303,9 @@ export default function Sidebar() {
         </button>
       )}
 
-      {/* Desktop sidebar */}
+      {/* Sidebar — mobile always full, desktop respects isCollapsed */}
       <aside className={`sidebar ${mobileOpen ? "open" : ""}`} style={{ display: "flex", flexDirection: "column" }}>
-        <SidebarContent />
+        <SidebarContent collapsed={mobileOpen ? false : isCollapsed} />
       </aside>
     </>
   );
