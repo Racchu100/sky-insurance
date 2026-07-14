@@ -646,6 +646,42 @@
     }
   }
 
+  /* Tablet responsive (769px – 1024px) */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .content-area {
+      padding: 20px 24px;
+    }
+    .page-header {
+      margin-bottom: 20px;
+    }
+    /* Policy info grid — 3 columns with comfortable spacing */
+    .policy-info-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .policy-info-card {
+      padding: 16px 18px;
+    }
+    /* Stats grid — 4 columns with more gap on tablet */
+    .stats-grid {
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      padding: 18px 20px;
+    }
+    /* Section cards */
+    .section-card-header {
+      padding: 14px 18px;
+    }
+    /* Form sections */
+    .form-grid {
+      gap: 16px;
+      padding: 18px;
+    }
+  }
+
   /* Search bar */
   .search-container {
     position: relative;
