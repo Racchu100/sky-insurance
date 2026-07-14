@@ -34,6 +34,7 @@ interface Policy {
   vehicleNo: string;
   vehicleModel: string;
   vehicleType: "PVT" | "COM";
+  policyType?: "LIABILITY" | "PACKAGE";
   insuranceComp: string;
   riskStartDate: string;
   riskEndDate: string;
@@ -296,6 +297,7 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
     { icon: <Car size={15} color="#7c3aed" />, label: "Vehicle No", value: <span style={{ fontFamily: "monospace", fontWeight: 700 }}>{policy.vehicleNo}</span> },
     { icon: <Car size={15} color="#7c3aed" />, label: "Model", value: policy.vehicleModel },
     { icon: <Car size={15} color="#7c3aed" />, label: "Type", value: policy.vehicleType === "PVT" ? "Private" : "Commercial" },
+    { icon: <FileText size={15} color="#16a34a" />, label: "Policy Type", value: policy.policyType === "LIABILITY" ? "Liabilities" : "Package" },
     { icon: <FileText size={15} color="#16a34a" />, label: "Policy No", value: <span style={{ fontFamily: "monospace" }}>{policy.policyNo}</span> },
     { icon: <FileText size={15} color="#16a34a" />, label: "Insurance Co", value: policy.insuranceComp },
     { icon: <Calendar size={15} color="#16a34a" />, label: "Risk Start", value: formatDate(policy.riskStartDate) },

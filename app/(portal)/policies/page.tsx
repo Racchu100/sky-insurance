@@ -117,6 +117,7 @@ interface Policy {
   vehicleNo: string;
   vehicleModel: string;
   vehicleType: "PVT" | "COM";
+  policyType?: "LIABILITY" | "PACKAGE";
   insuranceComp: string;
   riskStartDate: string;
   riskEndDate: string;

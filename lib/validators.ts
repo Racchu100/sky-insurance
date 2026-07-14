@@ -21,6 +21,9 @@ export const policySchema = z.object({
   vehicleType: z.enum(["PVT", "COM"], {
     required_error: "Vehicle type is required",
   }),
+  policyType: z.enum(["LIABILITY", "PACKAGE"], {
+    required_error: "Policy type is required",
+  }).default("PACKAGE"),
   riskStartDate: z.string().min(1, "Risk start date is required"),
   riskEndDate: z.string().min(1, "Risk end date is required"),
   policyNo: z.string().min(1, "Policy number is required").max(50),
