@@ -377,14 +377,9 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
       ) : (
         <>
           {/* Info grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12, marginBottom: 20 }}>
+          <div className="policy-info-grid">
             {infoRows.map((row) => (
-              <div key={row.label} style={{
-                background: "white",
-                border: "1px solid #e2e8f0",
-                borderRadius: 10,
-                padding: "14px 16px"
-              }}>
+              <div key={row.label} className="policy-info-card">
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                   {row.icon}
                   <span style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em" }}>

@@ -340,6 +340,21 @@
     transform: translateY(-2px);
   }
 
+  /* Policy detail info grid */
+  .policy-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .policy-info-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
   /* Page header */
   .page-header {
     display: flex;
@@ -602,6 +617,23 @@
     .btn {
       padding: 7px 12px;
       font-size: 13px;
+    }
+    /* Policy detail info grid — 3 per row on mobile */
+    .policy-info-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    /* Compact policy info cards on mobile */
+    .policy-info-card {
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+    .policy-info-card span {
+      font-size: 9px;
+    }
+    .policy-info-card div[style] {
+      font-size: 13px !important;
     }
   }
 
