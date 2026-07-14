@@ -196,6 +196,92 @@ function DocumentUploadField({
   );
 }
 
+const loadScript = (src: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window === "undefined") {
+      resolve();
+      return;
+    }
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`Failed to load script ${src}`));
+    document.head.appendChild(script);
+  });
+};
+
+const compressPDFScanned = async (file: File): Promise<string> => {
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+
+  const pdfjsLib = (window as any).pdfjsLib;
+  const { jsPDF } = (window as any).jspdf;
+
+  if (!pdfjsLib || !jsPDF) {
+    throw new Error("Failed to load PDF processing libraries from CDN.");
+  }
+
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  const fileReader = new FileReader();
+  const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+    fileReader.onload = () => resolve(fileReader.result as ArrayBuffer);
+    fileReader.onerror = reject;
+    fileReader.readAsArrayBuffer(file);
+  });
+
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const numPages = pdf.numPages;
+
+  const newPdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = newPdf.internal.pageSize.getWidth();
+  const pageHeight = newPdf.internal.pageSize.getHeight();
+
+  for (let i = 1; i <= numPages; i++) {
+    const page = await pdf.getPage(i);
+    const desiredWidth = 1000;
+    const viewport = page.getViewport({ scale: 1 });
+    const scale = desiredWidth / viewport.width;
+    const scaledViewport = page.getViewport({ scale });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = scaledViewport.width;
+    canvas.height = scaledViewport.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not construct 2D canvas context.");
+
+    await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.6);
+
+    if (i > 1) {
+      newPdf.addPage();
+    }
+    newPdf.addImage(imgData, "JPEG", 0, 0, pageWidth, pageHeight);
+  }
+
+  const compressedPdfArrayBuffer = newPdf.output("arraybuffer");
+  
+  const responseStream = new Response(compressedPdfArrayBuffer).body;
+  if (!responseStream) {
+    throw new Error("Failed to read compressed PDF stream.");
+  }
+  const compressedStream = responseStream.pipeThrough(new CompressionStream("gzip"));
+  const response = new Response(compressedStream);
+  const blob = await response.blob();
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
 const compressPDF = (file: File): Promise<string> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -233,6 +319,7 @@ function PDFUploadField({
   error?: string;
 }) {
   const [compressing, setCompressing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [origSize, setOrigSize] = useState<string>("");
   const [compSize, setCompSize] = useState<string>("");
@@ -248,12 +335,20 @@ function PDFUploadField({
 
     setUploadError("");
     setCompressing(true);
+    setStatusMessage("Reading file...");
 
     const originalMb = (file.size / (1024 * 1024)).toFixed(2);
     setOrigSize(`${originalMb} MB`);
 
     try {
-      const compressedDataUrl = await compressPDF(file);
+      let compressedDataUrl: string;
+      if (file.size > 2.5 * 1024 * 1024) {
+        setStatusMessage("Large PDF. Optimizing pages client-side...");
+        compressedDataUrl = await compressPDFScanned(file);
+      } else {
+        setStatusMessage("Compressing PDF...");
+        compressedDataUrl = await compressPDF(file);
+      }
       onChange(compressedDataUrl);
 
       const base64Length = compressedDataUrl.split(",")[1].length;
@@ -265,6 +360,7 @@ function PDFUploadField({
       setUploadError(err instanceof Error ? err.message : "Error compressing PDF.");
     } finally {
       setCompressing(false);
+      setStatusMessage("");
     }
   };
 
@@ -296,7 +392,7 @@ function PDFUploadField({
               <span style={{ fontSize: 13, fontWeight: 500, color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>E-Policy PDF Uploaded</span>
               {origSize && compSize && (
                 <span style={{ fontSize: 11, color: "#64748b" }}>
-                  Gzip: {origSize} &rarr; {compSize}
+                  Compressed: {origSize} &rarr; {compSize}
                 </span>
               )}
             </div>
@@ -339,9 +435,9 @@ function PDFUploadField({
           transition: "border-color 0.2s ease"
         }}>
           {compressing ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: 12 }}>
               <RefreshCw size={20} className="animate-spin" style={{ color: "#0284c7" }} />
-              <span style={{ fontSize: 12, color: "#64748b" }}>Compressing PDF...</span>
+              <span style={{ fontSize: 12, color: "#64748b", textAlign: "center" }}>{statusMessage}</span>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: 12 }}>
