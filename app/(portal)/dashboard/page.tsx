@@ -223,8 +223,8 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Stats Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16, marginBottom: 28 }}>
+      {/* Stats Cards — always 1 row of 4 */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 28, overflowX: "auto" }}>
         {loading
           ? Array(4).fill(0).map((_, i) => (
               <div key={i} className="stat-card" style={{ height: 110 }}>
@@ -236,25 +236,26 @@ export default function DashboardPage() {
               const Icon = card.icon;
               return (
                 <div
-                  key={card.label}
+                 key={card.label}
                   className="stat-card"
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", padding: "14px 12px" }}
                   onClick={() => router.push(card.href)}
                 >
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: "#64748b" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#64748b", lineHeight: 1.3 }}>
                       {card.label}
                     </div>
                     <div style={{
-                      width: 36, height: 36,
+                      width: 30, height: 30,
                       background: card.bg,
-                      borderRadius: 10,
-                      display: "flex", alignItems: "center", justifyContent: "center"
+                      borderRadius: 8,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      flexShrink: 0, marginLeft: 4
                     }}>
-                      <Icon size={18} color={card.color} />
+                      <Icon size={15} color={card.color} />
                     </div>
                   </div>
-                  <div style={{ fontSize: 32, fontWeight: 800, color: card.color, lineHeight: 1 }}>
+                  <div style={{ fontSize: 26, fontWeight: 800, color: card.color, lineHeight: 1 }}>
                     {card.value}
                   </div>
                   <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 6 }}>
