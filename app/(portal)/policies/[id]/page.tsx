@@ -15,6 +15,7 @@ import {
   FileText,
   IndianRupee,
   Clock,
+  Shield,
 } from "lucide-react";
 import PolicyForm from "@/components/PolicyForm";
 import StatusBadge from "@/components/StatusBadge";
@@ -46,6 +47,72 @@ interface Policy {
   createdAt: string;
   updatedAt: string;
   expiringSoonDays?: number;
+  aadhaarCard?: string;
+  panCard?: string;
+  drivingLicense?: string;
+}
+
+function DocumentCard({ title, dataUrl }: { title: string; dataUrl: string }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  return (
+    <>
+      <div style={{
+        border: "1px solid #e2e8f0",
+        borderRadius: 12,
+        overflow: "hidden",
+        background: "#f8fafc",
+        display: "flex",
+        flexDirection: "column"
+      }}>
+        <div style={{ padding: "10px 14px", borderBottom: "1px solid #e2e8f0", background: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>{title}</span>
+          <button 
+            type="button" 
+            onClick={() => setModalOpen(true)}
+            className="btn btn-secondary btn-sm"
+            style={{ padding: "4px 8px", fontSize: 11 }}
+          >
+            View Full
+          </button>
+        </div>
+        <div style={{ 
+          height: 180, 
+          position: "relative", 
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden"
+        }} onClick={() => setModalOpen(true)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src={dataUrl} 
+            alt={title} 
+            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+          />
+        </div>
+      </div>
+
+      {modalOpen && (
+        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="modal-content" style={{ maxWidth: 800, padding: 16 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <span style={{ fontWeight: 600, fontSize: 15 }}>{title}</span>
+              <button className="btn btn-secondary btn-sm" onClick={() => setModalOpen(false)}>Close</button>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", background: "#f8fafc", borderRadius: 8, padding: 8 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={dataUrl} 
+                alt={title} 
+                style={{ maxWidth: "100%", maxHeight: "70vh", objectFit: "contain", borderRadius: 6 }} 
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
 
 export default function PolicyDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -242,6 +309,29 @@ export default function PolicyDetailPage({ params }: { params: Promise<{ id: str
               </div>
             ))}
           </div>
+
+          {/* Customer Private Documents */}
+          {(policy.aadhaarCard || policy.panCard || policy.drivingLicense) && (
+            <div className="section-card" style={{ marginBottom: 20 }}>
+              <div className="section-card-header">
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Shield size={17} color="#dc2626" />
+                  <span className="section-card-title">Customer Private Documents</span>
+                </div>
+              </div>
+              <div style={{ padding: "20px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                {policy.aadhaarCard && (
+                  <DocumentCard title="Aadhaar Card" dataUrl={policy.aadhaarCard} />
+                )}
+                {policy.panCard && (
+                  <DocumentCard title="PAN Card" dataUrl={policy.panCard} />
+                )}
+                {policy.drivingLicense && (
+                  <DocumentCard title="Driving License" dataUrl={policy.drivingLicense} />
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Audit trail */}
           <div className="section-card" style={{ padding: "16px 20px" }}>

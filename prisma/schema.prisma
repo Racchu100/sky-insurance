@@ -51,10 +51,13 @@ model Policy {
   gst           Float       @default(0)
   premium       Float       @default(0)
   investment    Float       @default(0)
-  isDeleted     Boolean     @default(false)
-  deletedAt     DateTime?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  isDeleted      Boolean     @default(false)
+  deletedAt      DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  aadhaarCard    String?
+  panCard        String?
+  drivingLicense String?
 
   createdById String?
   updatedById String?

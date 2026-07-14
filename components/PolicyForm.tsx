@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { policySchema, type PolicyFormData } from "@/lib/validators";
-import { AlertCircle, User, Car, FileText, IndianRupee, Plus, RefreshCw } from "lucide-react";
+import { AlertCircle, User, Car, FileText, IndianRupee, Plus, RefreshCw, Shield } from "lucide-react";
 
 interface PolicyFormProps {
   defaultValues?: Partial<PolicyFormData>;
@@ -16,6 +16,184 @@ interface PolicyFormProps {
 interface Company {
   id: string;
   name: string;
+}
+
+const convertToWebP = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) {
+      reject(new Error("Please upload an image file (PNG, JPG, JPEG, WEBP, etc.)"));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 1200;
+        const MAX_HEIGHT = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Could not create canvas context"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        const webpDataUrl = canvas.toDataURL("image/webp", 0.75);
+        resolve(webpDataUrl);
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+};
+
+function DocumentUploadField({
+  label,
+  value,
+  onChange,
+  error,
+}: {
+  label: string;
+  value?: string;
+  onChange: (value: string) => void;
+  error?: string;
+}) {
+  const [converting, setConverting] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please select an image file.");
+      return;
+    }
+
+    setUploadError("");
+    setConverting(true);
+    try {
+      const webpDataUrl = await convertToWebP(file);
+      onChange(webpDataUrl);
+    } catch (err: unknown) {
+      console.error(err);
+      setUploadError(err instanceof Error ? err.message : "Error converting image.");
+    } finally {
+      setConverting(false);
+    }
+  };
+
+  return (
+    <div className="form-field" style={{ display: "flex", flexDirection: "column" }}>
+      <label className="form-label" style={{ fontWeight: 600 }}>{label}</label>
+
+      {value ? (
+        <div style={{
+          border: "1px solid #e2e8f0",
+          borderRadius: 10,
+          background: "#f8fafc",
+          position: "relative",
+          overflow: "hidden",
+          height: 140,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={value}
+            alt={label}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            style={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              background: "rgba(239, 68, 68, 0.9)",
+              color: "white",
+              border: "none",
+              borderRadius: "50%",
+              width: 24,
+              height: 24,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.15)"
+            }}
+            title="Remove document"
+          >
+            &times;
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          border: "2px dashed #cbd5e1",
+          borderRadius: 10,
+          background: "#f8fafc",
+          height: 140,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          position: "relative",
+          transition: "border-color 0.2s ease"
+        }}>
+          {converting ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <RefreshCw size={20} className="animate-spin" style={{ color: "#0284c7" }} />
+              <span style={{ fontSize: 12, color: "#64748b" }}>Converting to WebP...</span>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: 12 }}>
+              <span style={{ fontSize: 13, color: "#0284c7", fontWeight: 500 }}>Upload Image</span>
+              <span style={{ fontSize: 11, color: "#94a3b8", textAlign: "center" }}>JPEG, PNG, WEBP auto-converted</span>
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            disabled={converting}
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: 0,
+              cursor: "pointer"
+            }}
+          />
+        </div>
+      )}
+
+      {(error || uploadError) && (
+        <span className="form-error" style={{ marginTop: 4 }}>
+          <AlertCircle size={12} /> {error || uploadError}
+        </span>
+      )}
+    </div>
+  );
 }
 
 function toInputDate(date: Date | string | undefined): string {
@@ -89,6 +267,9 @@ export default function PolicyForm({
       gst: defaultValues?.gst ?? 0,
       premium: defaultValues?.premium ?? 0,
       investment: defaultValues?.investment ?? 0,
+      aadhaarCard: defaultValues?.aadhaarCard || "",
+      panCard: defaultValues?.panCard || "",
+      drivingLicense: defaultValues?.drivingLicense || "",
     },
   });
 
@@ -307,6 +488,32 @@ export default function PolicyForm({
         </div>
       ),
     },
+    {
+      title: "Customer Private Documents",
+      icon: <Shield size={16} color="#dc2626" />,
+      fields: (
+        <div className="form-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+          <DocumentUploadField
+            label="Aadhaar Card"
+            value={watch("aadhaarCard")}
+            onChange={(val) => setValue("aadhaarCard", val)}
+            error={errors.aadhaarCard?.message}
+          />
+          <DocumentUploadField
+            label="PAN Card"
+            value={watch("panCard")}
+            onChange={(val) => setValue("panCard", val)}
+            error={errors.panCard?.message}
+          />
+          <DocumentUploadField
+            label="Driving License"
+            value={watch("drivingLicense")}
+            onChange={(val) => setValue("drivingLicense", val)}
+            error={errors.drivingLicense?.message}
+          />
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -362,6 +569,7 @@ export default function PolicyForm({
                 date: toInputDate(new Date()),
                 vehicleType: "PVT",
                 od: 0, netPremium: 0, gst: 0, premium: 0, investment: 0,
+                aadhaarCard: "", panCard: "", drivingLicense: "",
               });
               document.getElementById("field-customerName")?.focus();
             })}
