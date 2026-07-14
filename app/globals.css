@@ -396,6 +396,19 @@
     gap: 8px;
   }
 
+  /* Policies search card */
+  .policy-search-card {
+    margin-bottom: 20px;
+  }
+
+  .policy-search-inner {
+    padding: 14px 16px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
   .section-card-title {
     font-size: 15px;
     font-weight: 600;
@@ -635,7 +648,15 @@
     }
     /* Reduce section card body padding on mobile */
     .section-card {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+    }
+    /* Compact search card on mobile */
+    .policy-search-card {
+      margin-bottom: 6px !important;
+    }
+    .policy-search-inner {
+      padding: 8px 10px !important;
+      gap: 8px !important;
     }
     /* Policy detail info grid — 3 per row on mobile */
     .policy-info-grid {

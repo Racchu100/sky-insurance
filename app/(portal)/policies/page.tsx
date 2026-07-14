@@ -350,8 +350,8 @@ export default function PoliciesPage() {
       </div>
 
       {/* Search + Filters */}
-      <div className="section-card" style={{ marginBottom: 20 }}>
-        <div style={{ padding: "14px 16px", display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+      <div className="section-card policy-search-card">
+        <div className="policy-search-inner" style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <div className="search-container" style={{ flex: 1, maxWidth: 460 }}>
             <Search size={15} className="search-icon" />
             <input
