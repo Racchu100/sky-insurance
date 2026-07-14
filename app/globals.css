@@ -409,6 +409,27 @@
     align-items: center;
   }
 
+  /* Policy filter panel */
+  .policy-filter-panel {
+    padding: 14px 16px;
+    border-top: 1px solid #f1f5f9;
+    background: #f8fafc;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* Policy filter date row */
+  .policy-filter-dates {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 12px;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 12px;
+  }
+
   .section-card-title {
     font-size: 15px;
     font-weight: 600;
@@ -657,6 +678,29 @@
     .policy-search-inner {
       padding: 8px 10px !important;
       gap: 8px !important;
+    }
+    /* Compact filter panel on mobile */
+    .policy-filter-panel {
+      padding: 8px 10px;
+      gap: 8px;
+    }
+    .policy-filter-dates {
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 8px;
+    }
+    .form-field {
+      min-width: 0 !important;
+      width: 100%;
+    }
+    .form-label {
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+    .form-input {
+      font-size: 12px !important;
+      padding: 5px 8px;
     }
     /* Policy detail info grid — 3 per row on mobile */
     .policy-info-grid {

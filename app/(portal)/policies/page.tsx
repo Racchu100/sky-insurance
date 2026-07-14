@@ -401,12 +401,7 @@ export default function PoliciesPage() {
 
         {/* Filter panel */}
         {showFilters && (
-          <div style={{
-            padding: "14px 16px",
-            borderTop: "1px solid #f1f5f9",
-            background: "#f8fafc",
-            display: "flex", gap: 12, flexWrap: "wrap"
-          }}>
+          <div className="policy-filter-panel">
             <div className="form-field" style={{ minWidth: 180 }}>
               <label className="form-label">Insurance Company</label>
               <select className="form-input" style={{ fontSize: 13 }} value={filterInsurer} onChange={(e) => { setFilterInsurer(e.target.value); setPage(1); }} id="filter-insurer">
@@ -437,7 +432,7 @@ export default function PoliciesPage() {
             </div>
 
             {/* Date Filters Row */}
-            <div style={{ width: "100%", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginTop: 12, borderTop: "1px dashed #e2e8f0", paddingTop: 12 }}>
+            <div className="policy-filter-dates">
               <div>
                 <label className="form-label" style={{ fontWeight: 600, color: "#475569" }}>Policy Date Range</label>
                 <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
