@@ -530,8 +530,8 @@ export default function PolicyForm({
       refAgent: defaultValues?.refAgent || "",
       vehicleNo: defaultValues?.vehicleNo || "",
       insuranceComp: defaultValues?.insuranceComp || "",
-      vehicleType: defaultValues?.vehicleType || "PVT",
-      policyType: defaultValues?.policyType || "PACKAGE",
+      vehicleType: defaultValues?.vehicleType || ("" as any),
+      policyType: defaultValues?.policyType || ("" as any),
       riskStartDate: toInputDate(defaultValues?.riskStartDate) || "",
       riskEndDate: toInputDate(defaultValues?.riskEndDate) || "",
       policyNo: defaultValues?.policyNo || "",
@@ -690,12 +690,14 @@ export default function PolicyForm({
           </FormField>
           <FormField label="Vehicle Type" required error={errors.vehicleType?.message}>
             <select className={`form-input ${errors.vehicleType ? "error" : ""}`} id="field-vehicleType" {...register("vehicleType")}>
+              <option value="">Select vehicle type...</option>
               <option value="PVT">Private (PVT)</option>
               <option value="COM">Commercial (COM)</option>
             </select>
           </FormField>
           <FormField label="Policy Type" required error={errors.policyType?.message}>
             <select className={`form-input ${errors.policyType ? "error" : ""}`} id="field-policyType" {...register("policyType")}>
+              <option value="">Select policy type...</option>
               <option value="PACKAGE">Package</option>
               <option value="LIABILITY">Liabilities</option>
             </select>
