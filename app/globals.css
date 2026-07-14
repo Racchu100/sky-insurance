@@ -310,6 +310,21 @@
     border: 1px solid rgba(14, 165, 233, 0.2);
   }
 
+  /* Stats grid — 4 columns desktop, 2 columns mobile */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+  }
+
   /* Stat cards */
   .stat-card {
     background: white;

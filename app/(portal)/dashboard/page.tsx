@@ -223,8 +223,8 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Stats Cards — always 1 row of 4, no scroll */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 20 }}>
+      {/* Stats Cards — 2 per row mobile, 4 per row desktop */}
+      <div className="stats-grid">
         {loading
           ? Array(4).fill(0).map((_, i) => (
               <div key={i} className="stat-card" style={{ height: 110 }}>
@@ -236,27 +236,30 @@ export default function DashboardPage() {
               const Icon = card.icon;
               return (
                 <div
-                  key={card.label}
+                 key={card.label}
                   className="stat-card"
-                  style={{ cursor: "pointer", padding: "10px 8px", minWidth: 0 }}
+                  style={{ cursor: "pointer", padding: "14px 12px" }}
                   onClick={() => router.push(card.href)}
                 >
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6 }}>
-                    <div style={{ fontSize: 10, fontWeight: 600, color: "#64748b", lineHeight: 1.3 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#64748b", lineHeight: 1.3 }}>
                       {card.label}
                     </div>
                     <div style={{
-                      width: 24, height: 24,
+                      width: 30, height: 30,
                       background: card.bg,
-                      borderRadius: 6,
+                      borderRadius: 8,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      flexShrink: 0, marginLeft: 2
+                      flexShrink: 0, marginLeft: 4
                     }}>
-                      <Icon size={12} color={card.color} />
+                      <Icon size={15} color={card.color} />
                     </div>
                   </div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: card.color, lineHeight: 1 }}>
+                  <div style={{ fontSize: 26, fontWeight: 800, color: card.color, lineHeight: 1 }}>
                     {card.value}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 6 }}>
+                    Click to view →
                   </div>
                 </div>
               );
