@@ -621,7 +621,7 @@
     /* Policy detail info grid — 3 per row on mobile */
     .policy-info-grid {
       grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
+      gap: 8px;
       margin-bottom: 12px;
     }
     /* Compact policy info cards on mobile — centered */
