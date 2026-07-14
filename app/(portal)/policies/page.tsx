@@ -22,6 +22,91 @@ import StatusBadge from "@/components/StatusBadge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 
+const decompressPDF = async (compressedDataUrl: string): Promise<string> => {
+  const res = await fetch(compressedDataUrl);
+  const blob = await res.blob();
+  const decompressedStream = blob.stream().pipeThrough(new DecompressionStream("gzip"));
+  const response = new Response(decompressedStream);
+  const decompressedBlob = await response.blob();
+  const pdfBlob = new Blob([await decompressedBlob.arrayBuffer()], { type: "application/pdf" });
+  return URL.createObjectURL(pdfBlob);
+};
+
+function PDFViewCell({ policyId, hasEPolicy }: { policyId: string; hasEPolicy?: boolean }) {
+  const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!hasEPolicy) {
+    return <span style={{ color: "#cbd5e1" }}>&mdash;</span>;
+  }
+
+  const handleView = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Stop row click navigation!
+    setDownloading(true);
+    setError("");
+    try {
+      // Fetch full policy data dynamically to retrieve ePolicy
+      const res = await fetch(`/api/policies/${policyId}`);
+      if (!res.ok) throw new Error("Failed to fetch policy details.");
+      const data = await res.json();
+      if (!data.ePolicy) throw new Error("Policy document not found.");
+      
+      const url = await decompressPDF(data.ePolicy);
+      window.open(url, "_blank");
+    } catch (err: unknown) {
+      console.error(err);
+      setError("Error");
+      alert("Failed to load PDF document.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start" }} onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={handleView}
+        disabled={downloading}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          background: "#fef2f2",
+          color: "#ef4444",
+          border: "1px solid #fee2e2",
+          borderRadius: 6,
+          padding: "4px 8px",
+          fontSize: 12,
+          fontWeight: 600,
+          cursor: downloading ? "not-allowed" : "pointer",
+          transition: "all 0.2s ease"
+        }}
+        onMouseEnter={(e) => {
+          if (!downloading) {
+            e.currentTarget.style.background = "#fee2e2";
+            e.currentTarget.style.borderColor = "#fca5a5";
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!downloading) {
+            e.currentTarget.style.background = "#fef2f2";
+            e.currentTarget.style.borderColor = "#fee2e2";
+          }
+        }}
+      >
+        {downloading ? (
+          <RefreshCw size={13} className="animate-spin" />
+        ) : (
+          <FileText size={13} />
+        )}
+        <span>{downloading ? "Loading..." : "View"}</span>
+      </button>
+      {error && <span style={{ fontSize: 10, color: "#ef4444", marginTop: 2 }}>{error}</span>}
+    </div>
+  );
+}
+
 interface Policy {
   id: string;
   date: string;
@@ -42,18 +127,8 @@ interface Policy {
   investment: number;
   od: number;
   createdBy?: { name: string };
-  ePolicy?: string;
+  hasEPolicy?: boolean;
 }
-
-const decompressPDF = async (compressedDataUrl: string): Promise<string> => {
-  const res = await fetch(compressedDataUrl);
-  const blob = await res.blob();
-  const decompressedStream = blob.stream().pipeThrough(new DecompressionStream("gzip"));
-  const response = new Response(decompressedStream);
-  const decompressedBlob = await response.blob();
-  const pdfBlob = new Blob([await decompressedBlob.arrayBuffer()], { type: "application/pdf" });
-  return URL.createObjectURL(pdfBlob);
-};
 
 interface PoliciesResponse {
   policies: Policy[];
@@ -73,6 +148,7 @@ const COLUMNS = [
   { key: "riskEndDate", label: "Risk End Date", sortable: true },
   { key: "premium", label: "Premium", sortable: true },
   { key: "status", label: "Status", sortable: false },
+  { key: "pdf", label: "PDF", sortable: false },
 ];
 
 export default function PoliciesPage() {
@@ -94,20 +170,6 @@ export default function PoliciesPage() {
   const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [expiringSoonDays, setExpiringSoonDays] = useState<number>(30);
-  const [viewingPdfId, setViewingPdfId] = useState<string | null>(null);
-
-  const handleViewPDF = async (policyId: string, compressedDataUrl: string) => {
-    setViewingPdfId(policyId);
-    try {
-      const url = await decompressPDF(compressedDataUrl);
-      window.open(url, "_blank");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to decompress PDF document.");
-    } finally {
-      setViewingPdfId(null);
-    }
-  };
 
   // Filters
   const [filterInsurer, setFilterInsurer] = useState("");
@@ -474,48 +536,15 @@ export default function PoliciesPage() {
                         {policy.vehicleType}
                       </span>
                     </td>
-                    <td style={{ fontSize: 12, color: "#64748b", fontFamily: "monospace" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <span>{policy.policyNo}</span>
-                        {policy.ePolicy && (
-                          <button
-                            type="button"
-                            disabled={viewingPdfId !== null}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewPDF(policy.id, policy.ePolicy!);
-                            }}
-                            title="View E-Policy PDF"
-                            style={{
-                              cursor: "pointer",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              width: 22,
-                              height: 22,
-                              borderRadius: 4,
-                              background: "#fee2e2",
-                              color: "#ef4444",
-                              border: "none",
-                              padding: 0,
-                              transition: "background 0.2s"
-                            }}
-                          >
-                            {viewingPdfId === policy.id ? (
-                              <RefreshCw size={11} className="animate-spin" style={{ color: "#ef4444" }} />
-                            ) : (
-                              <FileText size={11} />
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    </td>
+                    <td style={{ fontSize: 12, color: "#64748b", fontFamily: "monospace" }}>{policy.policyNo}</td>
                     <td style={{ fontWeight: 500 }}>{formatDate(policy.riskEndDate)}</td>
                     <td style={{ fontWeight: 700 }}>{formatCurrency(policy.premium)}</td>
                     <td>
                       <StatusBadge riskEndDate={policy.riskEndDate} showDays threshold={expiringSoonDays} />
                     </td>
-
+                    <td>
+                       <PDFViewCell policyId={policy.id} hasEPolicy={policy.hasEPolicy} />
+                    </td>
                   </tr>
                 ))
               )}

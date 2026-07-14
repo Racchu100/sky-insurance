@@ -101,7 +101,24 @@ export async function GET(request: NextRequest) {
     prisma.policy.count({ where }),
   ]);
 
-  return NextResponse.json({ policies, total, page, limit, expiringSoonDays });
+  const mappedPolicies = policies.map((p) => {
+    const { ePolicy, aadhaarCard, panCard, drivingLicense, ...rest } = p;
+    return {
+      ...rest,
+      hasEPolicy: !!ePolicy,
+      hasAadhaar: !!aadhaarCard,
+      hasPan: !!panCard,
+      hasDrivingLicense: !!drivingLicense,
+    };
+  });
+
+  return NextResponse.json({
+    policies: mappedPolicies,
+    total,
+    page,
+    limit,
+    expiringSoonDays,
+  });
 }
 
 export async function POST(request: NextRequest) {
